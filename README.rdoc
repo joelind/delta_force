@@ -1,0 +1,78 @@
+= DeltaForce
+
+DeltaForce allows you to use some Postgres 8.4+ window functions in named scopes on your ActiveRecord models.
+
+It is very much still a work in progress; please contribute if possible and let me know what I can do better!
+
+== Installing
+
+In your Gemfile:
+
+  gem "delta_force"
+
+== Example
+
+Consider the following schema and model:
+
+  create_table "foos", :force => true do |t|
+    t.integer  "bar_id"
+    t.float    "x"
+    t.float    "y"
+    t.float    "z"
+    t.date     "period"
+  end
+
+  class Foo < ActiveRecord::Base
+    tracks_changes_over_time do |changes|
+      changes.values :x, :y, :z, :over => :period, :by => :bar_id
+    end
+  end
+
+
+You can now get the opening and closing values by bar_id as follows:
+  Foo.changes_in_x_and_y_and_z_by_bar_id_over_period
+
+If the following Foo objects exist:
+
+  #<Foo id: 1, bar_id: 1, x: 1.0, y: 10.0, z: 100.0, period: "2011-03-11">
+  #<Foo id: 2, bar_id: 1, x: 2.0, y: 20.0, z: 200.0, period: "2011-03-10">
+  #<Foo id: 3, bar_id: 1, x: 3.0, y: 30.0, z: 300.0, period: "2011-03-09">
+  #<Foo id: 4, bar_id: 2, x: 4.0, y: 40.0, z: 400.0, period: "2011-03-08">
+  #<Foo id: 5, bar_id: 2, x: 5.0, y: 50.0, z: 500.0, period: "2011-03-07">
+  #<Foo id: 6, bar_id: 2, x: 6.0, y: 60.0, z: 600.0, period: "2011-03-06">
+  #<Foo id: 7, bar_id: 2, x: 7.0, y: 70.0, z: 700.0, period: "2011-03-05">
+
+You can retrieve a set of modified Foo objects that have opening and closing values, partitioned by bar_id, for x, y, and z as follows:
+
+  Foo.changes_in_x_and_y_and_z_by_bar_id_over_period
+  => [#<Foo bar_id: 1>, #<Foo bar_id: 2>]
+
+  Foo.changes_in_x_and_y_and_z_by_bar_id_over_period.first.opening_x
+   => "3"
+
+  Foo.changes_in_x_and_y_and_z_by_bar_id_over_period.first.closing_x
+   => "1"
+
+  Foo.changes_in_x_and_y_and_z_by_bar_id_over_period.first.closing_y
+   => "10"
+
+  Foo.changes_in_x_and_y_and_z_by_bar_id_over_period.first.opening_y
+   => "30"
+
+  Foo.changes_in_x_and_y_and_z_by_bar_id_over_period.first.opening_period
+   => "2011-03-09"
+
+  Foo.changes_in_x_and_y_and_z_by_bar_id_over_period.first.closing_period
+   => "2011-03-11"
+
+Note that opening_* and closing_* values are not currently typecast.  I'd like to support that in the future.
+
+== Under the hood
+
+DeltaForce uses {Postgres 8.4+ window functions}[http://www.postgresql.org/docs/current/static/tutorial-window.html] to partition data by an arbitrary key.
+
+This has been tested agains Postgres 8.4 and should also work with Postgres 9.  Oracle provides the same set of functions, but I have not been able to test it against an Oracle instance yet.
+
+== Copyright
+
+Copyright (c) 2011 {Joe Lind}[http://github.com/joelind]. See LICENSE for details.
