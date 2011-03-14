@@ -73,7 +73,7 @@ Note that opening_* and closing_* values are not currently typecast.  I'd like t
 
 DeltaForce uses {Postgres 8.4+ window functions}[http://www.postgresql.org/docs/current/static/tutorial-window.html] to partition data by an arbitrary key.
 
-This has been tested agains Postgres 8.4 and should also work with Postgres 9.  Oracle provides the same set of functions, but I have not been able to test it against an Oracle instance yet.
+This has been tested against Postgres 8.4 and should also work with Postgres 9.  Oracle provides the same set of functions, but I have not been able to test it against an Oracle instance yet.
 
 == Copyright
 
