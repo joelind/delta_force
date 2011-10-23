@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    delta_force (0.0.1)
+    delta_force (0.0.2)
       activerecord (~> 2.3.0)
 
 GEM

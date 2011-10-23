@@ -69,6 +69,14 @@ You can retrieve a set of modified Foo objects that have opening and closing val
 
 Note that opening_* and closing_* values are not currently typecast.  I'd like to support that in the future.
 
+
+You can also retrieve a hash of the values for a given field *as of* the period as follows:
+
+  Foo.x_by_bar_id_as_of_period("2011-03-10")
+  => {1=>2.0, 2=>4.0}
+
+This hash contains the latest x on or before the specified period keyed by the bar_id.
+
 == Under the hood
 
 DeltaForce uses {Postgres 8.4+ window functions}[http://www.postgresql.org/docs/current/static/tutorial-window.html] to partition data by an arbitrary key.

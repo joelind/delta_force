@@ -15,16 +15,22 @@ class TestActiveRecordIntegration < Test::Unit::TestCase
     context 'with foos for a given bar' do
       setup do
         @bar = Factory(:bar)
-
         @foos = 3.times.collect do |i|
-          2.times.collect do
-            Factory :foo, :bar => @bar, :period => i.days.from_now.to_date,
-              :x=> (10 * i), :y => (100 * i), :z => (1000 * i)
-          end
-        end.flatten
+          Factory :foo, :bar => @bar, :period => (i+1).days.from_now.to_date,
+            :x => (i+1), :y => (i+1) * 10, :z => (i+1) * 100
+        end
 
         #decoy foo
         Factory :foo
+      end
+
+      context 'bar.foos.x_by_bar_id_as_of_period' do
+        should 'have the correct x' do
+          @foos.each do |foo|
+            result = @bar.foos.x_by_bar_id_as_of_period(foo.period)
+            assert_equal foo.x, result[@bar.id]
+          end
+        end
       end
 
       context 'bar.foos.changes_in_x_and_y_and_z_by_bar_id_over_period' do

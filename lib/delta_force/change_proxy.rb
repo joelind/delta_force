@@ -11,7 +11,8 @@ module DeltaForce
     def values(*value_fields)
       options = value_fields.extract_options!.symbolize_keys
 
-      partition_column = "#{table_name}.#{options[:by].to_s}"
+      partition_key = options[:by].to_s
+      partition_column = "#{table_name}.#{partition_key}"
       id_column = "#{table_name}.id"
 
       period_field_name = options[:over].to_s
@@ -41,6 +42,18 @@ module DeltaForce
         first_value(#{period_column}) over #{window} as closing_#{period_field_name},
         #{value_expressions.join ','}
       "
+
+      value_fields.each do |value_field|
+        klass.class.send :define_method, "#{value_field}_by_#{options[:by].to_s}_as_of_#{options[:over].to_s}" do |period|
+          Hash[
+            scoped(
+              :select => "distinct #{partition_column},
+                first_value(#{table_name}.#{value_field.to_s}) over #{window} as #{value_field.to_s}",
+              :conditions => [ "#{period_column} <= ?", period]
+            ).index_by(&partition_key.to_sym).map{|k,v| [k, v[value_field]]}
+          ]
+        end
+      end
     end
 
     alias :value :values
