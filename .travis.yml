@@ -1,0 +1,2 @@
+before_script:
+  - "psql -c 'create database delta_force_test;' -U postgres"

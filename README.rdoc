@@ -4,6 +4,8 @@ DeltaForce allows you to use some Postgres 8.4+ window functions in named scopes
 
 It is very much still a work in progress; please contribute if possible and let me know what I can do better!
 
+{<img src="https://travis-ci.org/joelind/delta_force.png" />}[http://travis-ci.org/joelind/delta_force]
+
 == Installing
 
 <b>DeltaForce only works with Rails 2.3</b>. I will be adding Rails 3 compatibility shortly.
